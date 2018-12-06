@@ -49,13 +49,16 @@ for entry in entries:
             guard = entry["guard"]
         else:
             guard = entry["guard"]
+            guard_asleep_minutes_in_hour = []
         continue
     elif current_action == "falls asleep":
         guard_falls_asleep = current_date
     elif current_action == "wakes up":
         guard_wakes_up = current_date
+        # guard_wakes_up = current_date - datetime.timedelta(minutes=1)
         minutes_asleep = (guard_wakes_up - guard_falls_asleep).seconds / 60
 
+        guard_asleep_minutes_in_hour = []
         # minutes in the hour they were asleep
         for x in range(guard_falls_asleep.minute, guard_falls_asleep.minute + minutes_asleep):
             guard_asleep_minutes_in_hour.append(x % 60)
@@ -67,5 +70,13 @@ for entry in entries:
             d = {"time_asleep_in_minutes": minutes_asleep, "minutes_in_hour_asleep": guard_asleep_minutes_in_hour}
             guards_sleep[guard] = d
 
+guards_most_common_minute = dict()
 for key, value in guards_sleep.iteritems():
     print "Guard:", key, "Total Minutes:", value["time_asleep_in_minutes"], "Counter:", collections.Counter(value["minutes_in_hour_asleep"])
+    # print collections.Counter(value["time_asleep_in_minutes"])
+    most_common_minute = collections.Counter(value["minutes_in_hour_asleep"]).most_common(1)[0][0]
+    guards_most_common_minute[key] = {"most_common":most_common_minute, "occurrences": collections.Counter(value["minutes_in_hour_asleep"]).most_common(1)[0][1]}
+
+print guards_most_common_minute
+for key in guards_most_common_minute:
+    print "Guard", key, "Minute", guards_most_common_minute[key]
